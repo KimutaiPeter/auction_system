@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <center>
+      <h2>Live bids</h2>
+      <div id="Bids_container" style='width: 500px;height: 600px;overflow-x: hidden;overflow-y: auto;text-align:justify;'>
+        {% for item in live_data %}
+          <div class="" style='width:100%;height:100px;'>
+            <img src='https://www.lookslikefilm.com/wp-content/uploads/2019/08/Beata-Miro.jpg' style='width:100px; height:100px';>
+            <span style='font-size:20px; margin-bottom:20px;' onclick="submition( {{ item['id'] }} )">{{ item['name'] }}</span>
+            <span style='font-size:20px; margin-bottom:20px;' onclick="submition( {{ item['id'] }} )">{{ item['time'] }}</span>
+          </div>
+        {%endfor%}
+        <!--
+        <div class="" style='width:100%;height:100px;background-color:red;'>
+          <img src='https://www.lookslikefilm.com/wp-content/uploads/2019/08/Beata-Miro.jpg' style='width:100px; height:100px';>
+          <span style='font-size:20px; margin-bottom:20px;'>Hello world</span>
+          <a href='somewhere' type="button" name="button"><span>Bid now</span></a>
+        </div>
+        -->
+      </div>
+
+      <h2>Available Items on long term bids</h2>
+      <div id="Bids_container" style='width: 500px;height: 600px;overflow-x: hidden;overflow-y: auto;text-align:justify;'>
+        {% for item in passive_data %}
+          <div class="" style='width:100%;height:100px;'>
+            <img src='https://www.lookslikefilm.com/wp-content/uploads/2019/08/Beata-Miro.jpg' style='width:100px; height:100px';>
+            <span style='font-size:20px; margin-bottom:20px;' onclick="submition( {{ item['id'] }} )">{{ item['name'] }}</span>
+            <span style='font-size:20px; margin-bottom:20px;' onclick="submition( {{ item['id'] }} )">{{ item['time'] }}</span>
+          </div>
+        {%endfor%}
+        <!--
+        <div class="" style='width:100%;height:100px;background-color:red;'>
+          <img src='https://www.lookslikefilm.com/wp-content/uploads/2019/08/Beata-Miro.jpg' style='width:100px; height:100px';>
+          <span style='font-size:20px; margin-bottom:20px;'>Hello world</span>
+          <a href='somewhere' type="button" name="button"><span>Bid now</span></a>
+        </div>
+        -->
+      </div>
+
+
+
+
+    </center>
+    <script type="text/javascript">
+      data='{{ data }}'
+      user_id={{ user_id }}  //This should be recorded using sessions next time
+      function insert_item(Name,id){
+        container=document.getElementById('Bids_container');
+        new_item_container=document.createElement('div')
+        new_item_container.style='width:100%;height:100px;'
+        image=document.createElement('img')
+        image.style='width:100px; height:100px';
+        image.src='https://www.lookslikefilm.com/wp-content/uploads/2019/08/Beata-Miro.jpg';
+        label1=document.createElement('span')
+        label1.textContent=Name;
+        label1.style='font-size:20px; margin:20px;'
+        label1.onclick= function (){
+          var form= document.createElement('form')
+          form.style='display:none;';
+          var input_id=document.createElement('input')
+          input_id.name='Id'
+          input_id.value=id;
+          form.appendChild(input_id)
+          container.appendChild(form)
+          form.submit()
+        }
+        new_item_container.appendChild(image)
+        new_item_container.appendChild(label1)
+        container.appendChild(new_item_container)
+      }
+
+
+
+      function submition(id){
+        container=document.getElementById('Bids_container');
+        var form= document.createElement('form')
+        form.style='display:none;';
+        form.action='/item_index'
+        form.method='POST'
+        var input_id=document.createElement('input')
+        input_id.name='Id'
+        input_id.value=id;
+        form.appendChild(input_id)
+        var input_user_id=document.createElement('input')
+        input_user_id.name='user_id'
+        input_user_id.value=user_id;
+        form.appendChild(input_user_id)
+        container.appendChild(form)
+        form.submit()
+      }
+
+
+    </script>
+  </body>
+</html>

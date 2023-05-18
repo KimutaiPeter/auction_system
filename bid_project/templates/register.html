@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <center>
+      <div class="" style='margin:200px;'>
+        <h4 id ='error'></h4>
+        <form id='form' class="" action="/register_processing" method='POST'>
+          <input placeholder="User name" type="text" name="user_name" value="" style='margin-bottom:30px; width:250px;'><br>
+          <input id='password1' placeholder="password" type="password" name="password" value="" style='margin-bottom:30px; width:250px;'><br>
+          <input id='password2' placeholder="password" type="password" name="password" value="" style='margin-bottom:30px; width:250px;'><br>
+        </form>
+        <button name="button" style='margin-bottom:30px; width:250px;' onclick="confirm_password()">Register</button>
+      </div>
+    </center>
+    <script type="text/javascript">
+      function confirm_password(){
+        var password1=document.getElementById('password1').value
+        var password2=document.getElementById('password2').value
+        if(password1===password2){
+          document.getElementById('form').submit()
+        }
+        else{
+          document.getElementById('error').textContent='Your password and confirmed password are not the same'
+        }
+        console.log(password1,password2);
+      }
+    </script>
+  </body>
+</html>

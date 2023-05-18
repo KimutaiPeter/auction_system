@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <center>
+      <div>
+        <span>Remaining time:</span><span id='seconds_indicator' style='font-size:40px;'>{{ time }}</span>
+      </div>
+      <h3>Name: {{ item_details['name'] }}</h3>
+      <h3>Status: {{ item_details['status'] }}</h3>
+      <h3 id='display_price'>Price: {{ item_details['price'] }}</h3>
+      <h3>Competitive type: {{ item_details['type'] }}</h3>
+      <span>Bid by:</span>
+      <input id='bid_offer' type="number" name="" type="number" value="{{ item_details['price']+5000 }}"><br>
+      <button style='width:300px;height:100px; font-size:40px;' type="button" name="button" onclick="LiveBid()">Place your bid</button>
+      <h3 id='who' ></h3>
+    </center>
+    <script type="text/javascript">
+      time={{ time }}
+      days={{ days }}
+      item_id={{ item_details['id'] }}
+      user_id={{ user_id }}
+      winner=null;
+      main_timer=setInterval(function (){
+        console.log('change')
+        var display_seconds=document.getElementById('seconds_indicator')
+        if(days>=0){
+
+          var day_prural_designator=''
+          if(days>0){
+            if(days===1){day_prural_designator=String(days)+' day ';}
+            else{day_prural_designator=String(days)+' days ';}
+          }
+          else{day_prural_designator='';}
+
+
+          if(time>0){
+            var date = new Date(null);
+            date.setSeconds(time);
+            datetime=day_prural_designator+date.toISOString().substr(11,8)
+            display_seconds.textContent=datetime
+          }
+          else{
+            var date = new Date(null);
+            date.setSeconds(time);
+            datetime=day_prural_designator+date.toISOString().substr(11,8)
+            display_seconds.textContent=datetime
+            time=3600*24
+            days=days-1
+
+          }
+
+
+          time=time-1
+        }
+        else{
+          console.log("Time is up!!!!");
+          check_winning_bidder()
+          clearInterval(main_timer)
+        }
+
+      },1000)
+
+
+      //You may want to improve this to do : going once... , going twice... Sold to Someone at offered price!!!
+      function check_winning_bidder(){
+        if(winner===null){
+          console.log('Error');
+        }
+        else{
+          if(winner===user_id){
+            document.getElementById('who').textContent='Looks like you won the bid'
+          }
+          else{
+            document.getElementById('who').textContent='Going once'
+          }
+        }
+
+      }
+
+
+
+
+
+      //Live bidding functions
+      function LiveBid(){
+        console.log('I am now bidding');
+        var bid_offer=document.getElementById('bid_offer').value
+        if(bid_offer>0){
+          //For now clients will send time data just for testing and debugging this should change as the server will give out the remaining time
+          socket.emit('live_bid',{'item_id':item_id,'user_id':user_id,'offer_price':bid_offer,'time':time})
+        }
+      }
+
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf-8">
+        //I think if the price_display and the offer_bid input was initialized The program would run faster check on this when you have time
+        window.onload = function () {
+          console.log('The page is ready, initiating socket connection');
+          socket = io('http://localhost:5000/');
+          socket.on('connect', function() {
+              socket.emit('my event', {data: 'I\'m connected!'});
+          });
+          socket.on('message', function(message) {
+            console.log('received:',message);
+            if(message['item_id']===item_id){
+              //Check for message collision by compearing the current price and the offer_price received
+              //If 2 or more people bid from past bid data then discard that message or bid data
+              if(message['user_id']===user_id){
+                console.log('I have the bid at ',message['offer_price'])
+                document.getElementById('bid_offer').value=parseInt(message['offer_price'])+1000
+                document.getElementById('bid_offer').min=parseInt(message['offer_price'])+1000
+                document.getElementById('display_price').textContent='Current Price:'+message['offer_price']
+                document.getElementById('who').textContent='I have the bid'
+                winner=message['user_id']
+              }
+              else{
+                console.log(message['user_id'],' has the bid at ',message['offer_price'],message['time']);
+                document.getElementById('bid_offer').value=parseInt(message['offer_price'])+1000
+                document.getElementById('bid_offer').min=parseInt(message['offer_price'])+1000
+                document.getElementById('display_price').textContent='Current Price:'+message['offer_price']
+                document.getElementById('who').textContent='anonymous user '+String(message['user_id'])+' has the bid at '+String(message['offer_price'])
+                winner=message['user_id']
+              }
+              if(message['time']===null){
+                console.log('time is null');
+              }
+              else{
+                time=message['time']
+              }
+            }
+          });
+
+          socket.on('error', function (error_message) {
+            alert(error_message)
+          });
+
+        }
+    </script>
+  </body>
+</html>
